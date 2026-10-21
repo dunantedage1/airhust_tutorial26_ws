@@ -1,0 +1,6 @@
+output/
+__pycache__/
+*.pyc
+weights/*.pt
+weights/*.onnx
+.DS_Store
