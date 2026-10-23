@@ -1,0 +1,12 @@
+# 板块二依赖，Python 3.8 专用。
+
+opencv-contrib-python>=4.8,<6
+numpy>=1.24,<2
+
+# 任务四用。注意 pytesseract 只是 Python 封装，系统里还要有 tesseract：
+#   sudo apt install tesseract-ocr
+pytesseract>=0.3
+
+# 任务五才用得到。只做前四关的话把这行注释掉，
+# 能省下几百 MB 的 torch 下载时间。
+ultralytics>=8.4,<9

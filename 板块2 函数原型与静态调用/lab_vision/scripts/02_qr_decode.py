@@ -2,28 +2,38 @@
 # -*- coding: utf-8 -*-
 """任务二：二维码识别。
 
-assets 里有两张二维码，分别编码了 harrypjh 和 dunantedage1。
-OpenCV 自带 QRCodeDetector，不用装 zbar，也不用联网。
+assets 里有两张二维码，各编码了一个神秘字符串，这一关需要你们编写程序对这两个二维码进行解码
 
+运行方式：
+
+    cd lab_vision
     python scripts/02_qr_decode.py
-    python scripts/02_qr_decode.py --image assets/qr_harrypjh.png
 
-要点：喂灰度图、先把多码接口试一遍、失败了再退到单码接口。
+思路：先BGR图转灰度，先试多码接口，没结果再退回单码接口，最后把四个角画出来。
+要点：白边不能裁，解码器靠它找边界。
 """
 
-import argparse
 import os
 
 import cv2
 import numpy as np
 
+"""这个部分在找目录"""
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ASSETS = os.path.join(ROOT, "assets")
 OUTPUT = os.path.join(ROOT, "output")
 
+IMAGE_PATHS = [
+    os.path.join(ASSETS, "qr_1.png"),
+    os.path.join(ASSETS, "qr_2.png"),
+]
+
+os.makedirs(OUTPUT, exist_ok=True)
+
 
 def load_image(path):
+    """读图，读不到就报错，不静默返回 None。"""
     image = cv2.imread(path)
     if image is None:
         raise FileNotFoundError("读不到图片：" + path)
@@ -40,30 +50,19 @@ def decode_qr(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     results = []
 
-    # 4.3 以后才有 detectAndDecodeMulti，一张图里有多码时用它更稳
-    if hasattr(detector, "detectAndDecodeMulti"):
-        ok, texts, points, _ = detector.detectAndDecodeMulti(gray)
-        if ok and points is not None:
-            for text, corner in zip(texts, points):
-                if not text:
-                    continue
-                results.append({
-                    "text": text,
-                    "points": np.array(corner, dtype=np.float32).reshape(4, 2),
-                })
+    """ ————————————————————————————填空—————————————————————————————————
 
-    # 多码接口没结果（或老版本 OpenCV）时，退回单码接口
-    if not results:
-        text, points, _ = detector.detectAndDecode(gray)
-        if text and points is not None:
-            results.append({
-                "text": text,
-                "points": np.array(points, dtype=np.float32).reshape(4, 2),
-            })
+
+
+
+
+        ————————————————————————————填空————————————————————————————————— """
+   
     return results
 
 
 def annotate(image, results):
+    """把二维码的四个角和内容画到图上，返回新图。"""
     canvas = image.copy()
     if len(canvas.shape) == 2:
         canvas = cv2.cvtColor(canvas, cv2.COLOR_GRAY2BGR)
@@ -78,41 +77,19 @@ def annotate(image, results):
     return canvas
 
 
-def main():
-    parser = argparse.ArgumentParser(description="二维码识别")
-    parser.add_argument("--image", nargs="+",
-                        default=[os.path.join(ASSETS, "qr_harrypjh.png"),
-                                 os.path.join(ASSETS, "qr_dunantedage1.png")])
-    parser.add_argument("--save", default=os.path.join(OUTPUT, "qr_result.png"))
-    args = parser.parse_args()
+for path in IMAGE_PATHS:
+    image = load_image(path)
+    results = decode_qr(image)
 
-    all_results = []
-    for path in args.image:
-        image = load_image(path)
-        results = decode_qr(image)
-        print("\n图片 %s" % os.path.basename(path))
-        if not results:
-            print("  没解出二维码，检查图片是否完整、白边够不够")
-        for item in results:
-            x, y = item["points"].mean(axis=0)
-            print("  内容：%s" % item["text"])
-            print("  中心：(%.0f, %.0f)" % (x, y))
-        all_results.append((image, results))
+    print("\n图片 %s" % os.path.basename(path))
+    if not results:
+        print("  没解出二维码")
+    for item in results:
+        x, y = item["points"].mean(axis=0)
+        print("  内容：%s" % item["text"])
+        print("  中心：(%.0f, %.0f)" % (x, y))
 
-    # 多张图拼成一张长图保存，方便检查
-    if all_results:
-        os.makedirs(os.path.dirname(args.save), exist_ok=True)
-        width = max(img.shape[1] for img, _ in all_results)
-        canvas = np.full((sum(img.shape[0] for img, _ in all_results), width, 3), 255, np.uint8)
-        y = 0
-        for image, results in all_results:
-            drawn = annotate(image, results)
-            canvas[y:y + drawn.shape[0], :drawn.shape[1]] = drawn
-            y += drawn.shape[0]
-        cv2.imwrite(args.save, canvas)
-        print("\n标注图已保存到", args.save)
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+    name = os.path.splitext(os.path.basename(path))[0]
+    save_path = os.path.join(OUTPUT, name + "_result.png")
+    cv2.imwrite(save_path, annotate(image, results))
+    print("  标注图已保存到 %s" % save_path)

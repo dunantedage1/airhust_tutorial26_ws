@@ -1,0 +1,21 @@
+# macOS 目录元数据
+.DS_Store
+**/.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# 运行产物
+output/
+weights/*.pt
+weights/*.onnx
+
+# LaTeX 编译产物
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
