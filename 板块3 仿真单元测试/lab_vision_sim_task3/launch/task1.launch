@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="world_path" default="$(find sim_task3)/worlds/task4.world" />
+    <arg name="world_path" default="$(find lab_vision_sim_task3)/worlds/task1.world" />
     <arg name="gui" default="true"/>
     <arg name="ns" default="/"/>
     <arg name="model" default="iris_rplidar"/>
@@ -10,7 +10,7 @@
     <arg name="tgt_component" default="1" />
     <arg name="vehicle" default="iris"/>
 
-    <env name="GAZEBO_MODEL_PATH" value="$(find sim_task3)/models:$(optenv GAZEBO_MODEL_PATH)" />
+    <env name="GAZEBO_MODEL_PATH" value="$(find lab_vision_sim_task3)/models:$(optenv GAZEBO_MODEL_PATH)" />
 
     <param name="use_sim_time" value="true" />
 
@@ -25,7 +25,7 @@
     <group ns="$(arg ns)">
         <include file="$(find mavros)/launch/node.launch">
             <arg name="pluginlists_yaml" value="$(find mavros)/launch/px4_pluginlists.yaml" />
-            <arg name="config_yaml" value="$(find sim_task3)/config/px4_config.yaml" />
+            <arg name="config_yaml" value="$(find lab_vision_sim_task3)/config/px4_config.yaml" />
             <arg name="fcu_url" value="$(arg fcu_url)" />
             <arg name="gcs_url" value="$(arg gcs_url)" />
             <arg name="tgt_system" value="$(arg tgt_system)" />
